@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
+using GroceryListLibrary;
 using System.IO;
 using Xunit;
-using Newtonsoft.Json;
-using System.Text;
-using GroceryListLibrary;
 
 namespace GroceryListTests
 {
@@ -15,35 +11,34 @@ namespace GroceryListTests
         [Fact]
         public void WriteListToDisk()
         {
-            var groceryList = new GroceryItemCollection() { new GroceryItem() { Id = 0 } };
-            groceryList.SerializeGroceryListToDisk(pathToFile);
+            PopulateAndSerializeGroceryList();
             Assert.True(File.Exists(pathToFile));
-            File.Delete(pathToFile);
-            Assert.False(File.Exists(pathToFile));
+            CleanUpGroceryList();
         }
 
         [Fact]
         public void ReadListFromDisk()
         {
-            var groceryList = new GroceryItemCollection() { new GroceryItem() { Id = 1 } };
-            groceryList.SerializeGroceryListToDisk(pathToFile);
+            var groceryList = PopulateAndSerializeGroceryList();
 
             groceryList.DeserializeGroceryListFromDisk(pathToFile);
             Assert.Single(groceryList);
             Assert.Equal(1, groceryList[0].Id);
+            CleanUpGroceryList();
+        }
 
+        private GroceryItemCollection PopulateAndSerializeGroceryList()
+        {
+            var groceryList = new GroceryItemCollection() { new GroceryItem() { Id = 1 } };
+            groceryList.SerializeGroceryListToDisk(pathToFile);
+            return groceryList;
+        }
+
+        private void CleanUpGroceryList()
+        {
             File.Delete(pathToFile);
             Assert.False(File.Exists(pathToFile));
         }
-
-        [Fact]
-        public void SerializeGroceryList()
-        {
-            var groceryList = new GroceryItem() { Id = 1 };
-            var serializedGroceryList = JsonConvert.SerializeObject(groceryList);
-            Assert.Equal("{\"Id\":1}", serializedGroceryList);
-        }
-
 
     }
 }
